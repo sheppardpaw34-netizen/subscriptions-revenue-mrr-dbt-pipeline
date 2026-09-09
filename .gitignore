@@ -12,3 +12,4 @@ dbt-env/
 *.json
 .env
 profiles.yml
+bigquery-key.json

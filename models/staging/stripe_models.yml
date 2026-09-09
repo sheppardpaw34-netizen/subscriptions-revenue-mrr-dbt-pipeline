@@ -1,0 +1,64 @@
+version 2:
+
+models:
+  - name: stg_stripe_customers
+    description: "Normalizing staging models for Stripe customer accounts."
+    columns: 
+      - name: customer_id
+        description: "Primary key for stripe customers"
+        data_tests:
+          - unique
+          -  not_null
+      - name: customer_email
+        data_tests:
+          - not_null
+      - name: created_at_utc
+      - name: currency
+      - name: customer_timezone
+  - name: stg_stripe_subscriptions
+    description: "Normalized staging model for Stripe subscription contracts."
+    columns:
+      - name: subscription_id
+        description: "Primary key for stripe subscriptions."
+        data_tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Foreign key mapping subscription to customer."
+        data_tests:
+          - not_null
+          - relationships:
+              to: ref('stg_stripe_customers')
+              field: customer_id
+      - name: plan_id
+        description: "Identifier for the subscription tier/plan."
+      - name: subscription_status
+      - name: quantity
+      - name: unit_price_usd
+      - name: mrr_amount
+      - name: arr_amount
+      - name: started_at_utc
+      - name: cancelled_at_utc
+      - name: is_active
+  - name: stg_stripe_invoices
+    description: "Normalized staging models for Stripe Invoices and billing events."
+    columns: 
+      - name: invoice_id 
+        description: "Primary key for Stripe invoices"
+        data_tests: 
+          - unique
+          - not_null
+      - name: customer_id 
+        description: "Foreign key mapping invoices to customer."
+        data_tests:
+          - not_null
+          - relationships: 
+              field: customer_id
+              to: ref('stg_stripe_customers')
+      - name: subscription_id
+      - name: invoice_staus
+      - name: amount_due_usd
+      - name: amount_paid_usd
+      - name: created_at_utc
+      - name: paid_at_utc
+      - name: is_paid
