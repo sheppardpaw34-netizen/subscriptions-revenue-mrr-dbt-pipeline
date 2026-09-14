@@ -1,0 +1,18 @@
+version 2: 
+  models:
+    - name: int_subscription_periods
+      description: "Intermediate subscription state mapping bounded start and end date per account."
+      columns: 
+        - name: subscription_id
+          data_tests: 
+            - unique
+            - not_null
+    - name: int_subscriptions_months
+      descptions: "Monthly fan-out of subscription MRR records using BigQuery array unnesting."
+      columns: 
+        - name: subscription_id
+          data_tests: 
+            - not_null
+        - name: date_month
+          data_tests:
+            - not_null

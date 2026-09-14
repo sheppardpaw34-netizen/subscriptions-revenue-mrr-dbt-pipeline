@@ -28,8 +28,9 @@ models:
         data_tests:
           - not_null
           - relationships:
-              to: ref('stg_stripe_customers')
-              field: customer_id
+              arguments:
+                to: ref('stg_stripe_customers')
+                field: customer_id
       - name: plan_id
         description: "Identifier for the subscription tier/plan."
       - name: subscription_status
@@ -52,9 +53,10 @@ models:
         description: "Foreign key mapping invoices to customer."
         data_tests:
           - not_null
-          - relationships: 
-              field: customer_id
-              to: ref('stg_stripe_customers')
+          - relationships:
+              arguments:
+                field: customer_id
+                to: ref('stg_stripe_customers')
       - name: subscription_id
       - name: invoice_staus
       - name: amount_due_usd
