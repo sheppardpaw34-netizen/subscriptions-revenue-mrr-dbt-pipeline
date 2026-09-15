@@ -1,7 +1,0 @@
-[sqlfluff]
-dialect = bigquery
-templater = jinja
-ignore = parsing, templating
-
-[sqlfluff:templater:jinja]
-apply_dbt_builtins = True
