@@ -74,3 +74,17 @@ metrics:
     type_params:
       measure: ending_mrr
     filter: "{{ Dimension('subscription__movement_type') }} = 'retained'"
+    
+  - name: net_revenue_retention
+    description: "Monthly Net Revenue Retention rate (NRR)."
+    type: simple
+    label: "NRR (%)"
+    type_params:
+      measure: ending_mrr
+
+  - name: gross_revenue_retention
+    description: "Monthly Gross Revenue Retention rate (GRR)."
+    type: simple
+    label: "GRR (%)"
+    type_params:
+      measure: ending_mrr
