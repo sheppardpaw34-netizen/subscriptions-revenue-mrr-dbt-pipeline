@@ -27,3 +27,13 @@ models:
           - accepted_values:
               arguments:
                 values: ['new', 'expansion', 'contraction', 'churn', 'retained']
+  - name: fct_mrr_cohort_metrics
+    description: "Mart calculating monthly Net Revenue Retention (NRR) and Gross Revenue Retention (GRR) metrics."
+    columns:
+      - name: date_month
+        data_tests:
+          - not_null
+      - name: nrr_percentage
+        description: "Net Revenue Retention percentage."
+      - name: grr_percentage
+        description: "Gross Revenue Retention percentage."
