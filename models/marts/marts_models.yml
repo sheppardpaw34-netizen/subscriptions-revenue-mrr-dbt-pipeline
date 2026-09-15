@@ -12,23 +12,16 @@ models:
           - not_null
           - unique
 
-  - name: fct_mrr_movements
+  - name: fct_mrr_waterfall
     description: "Fact table recording monthly MRR transitions across subscription accounts."
     columns:
-      - name: subscription_id
+      - name: mrr_month
         data_tests:
           - not_null
 
-      - name: date_month
+      - name: category
         data_tests:
           - not_null
-
-      - name: movement_type
-        data_tests:
-          - not_null
-          - accepted_values:
-              arguments:
-                values: ['new', 'expansion', 'contraction', 'churn', 'retained']
 
       - name: mrr_delta
         description: "Net change in monthly recurring revenue."
@@ -41,40 +34,19 @@ models:
               type: sum
               label: "Gross New MRR"
               filters:
-                - movement_type: "new"
+                - category: "new"
             expansion_mrr:
               type: sum
               label: "Expansion MRR"
               filters:
-                - movement_type: "expansion"
+                - category: "expansion"
             contraction_mrr:
               type: sum
               label: "Contraction MRR"
               filters:
-                - movement_type: "contraction"
+                - category: "contraction"
             churned_mrr:
               type: sum
               label: "Churned MRR"
               filters:
-                - movement_type: "churn"
-
-  - name: fct_mrr_cohort_metrics
-    description: "Mart calculating monthly Net Revenue Retention (NRR) and Gross Revenue Retention (GRR) metrics."
-    columns:
-      - name: date_month
-        data_tests:
-          - not_null
-      - name: nrr_percentage
-        description: "Net Revenue Retention percentage."
-        meta:
-          metrics:
-            nrr:
-              type: average
-              label: "Net Revenue Retention (NRR)"
-      - name: grr_percentage
-        description: "Gross Revenue Retention percentage."
-        meta:
-          metrics:
-            grr:
-              type: average
-              label: "Gross Revenue Retention (GRR)"
+                - category: "churn"
