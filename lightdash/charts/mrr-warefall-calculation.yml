@@ -1,0 +1,49 @@
+chartConfig:
+  config:
+    conditionalFormattings: []
+    eChartsConfig:
+      series:
+        - encode:
+            xRef:
+              field: fct_mrr_waterfall_category
+            yRef:
+              field: fct_mrr_waterfall_mrr_delta
+          isFilteredOut: false
+          type: bar
+          yAxisIndex: 0
+      showAxisTicks: false
+    layout:
+      xField: fct_mrr_waterfall_category
+      yField:
+        - fct_mrr_waterfall_mrr_delta
+  type: cartesian
+contentType: chart
+description: >-
+  Visualizes monthly recurring revenue changes across different categories to
+  identify which segments are driving growth or decline.
+metricQuery:
+  additionalMetrics: []
+  customDimensions: []
+  dimensions:
+    - fct_mrr_waterfall_category
+    - fct_mrr_waterfall_mrr_delta
+  exploreName: fct_mrr_waterfall
+  filters: {}
+  limit: 500
+  metricOverrides: {}
+  metrics: []
+  sorts:
+    - descending: false
+      fieldId: fct_mrr_waterfall_category
+  tableCalculations: []
+  timezone: project_timezone
+name: MRR_warefall_calculation
+slug: mrr-warefall-calculation
+spaceSlug: shared
+tableConfig:
+  columnOrder:
+    - fct_mrr_waterfall_category
+    - fct_mrr_waterfall_mrr_delta
+tableName: fct_mrr_waterfall
+verification: null
+version: 1

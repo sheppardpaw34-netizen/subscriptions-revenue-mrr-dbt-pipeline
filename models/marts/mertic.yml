@@ -2,7 +2,7 @@ version: 2
 
 semantic_models:
   - name: mrr_waterfall_semantic
-    model: ref('fct_mrr_movements')
+    model: ref('fct_mrr_waterfall')
     description: "Semantic layer model for MRR movements and SaaS waterfall metrics."
     defaults:
       agg_time_dimension: date_month

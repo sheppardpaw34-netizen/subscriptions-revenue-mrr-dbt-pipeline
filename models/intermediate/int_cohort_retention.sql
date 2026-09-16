@@ -1,5 +1,5 @@
 with mrr_movements as (
-    select * from {{ ref('fct_mrr_movements') }}
+    select * from {{ ref('fct_mrr_waterfall') }}
 ),
 
 customer_cohorts as (

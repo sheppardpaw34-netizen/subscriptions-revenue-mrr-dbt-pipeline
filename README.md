@@ -7,12 +7,19 @@ This repository enforces **BI-as-Code** by defining business metrics centrally i
 * **Expansion & Contraction MRR**: Net expansion or downgrade deltas across active accounts.
 * **Net Revenue Retention (NRR)**: Benchmark tracking revenue expansion against churned/contracted revenue.
 
-### 2. Local BI Query Execution (Lightdash CLI)
-Engineers can compile and validate metric definitions locally using the Lightdash and MetricFlow CLI toolchains:
+## 📊 Business Intelligence & Semantic Layer (Lightdash)
 
+This repository follows **BI-as-Code** principles. Metrics and semantic definitions configured in dbt are automatically synced and version-controlled with Lightdash.
+
+### MRR Movement Waterfall Chart
+Below is the compiled Lightdash visualization generated from `fct_mrr_waterfall`:
+
+![MRR Movement Waterfall](assets/lightdash_chart.png)
+
+### Sync & Deploy Commands
 ```bash
-# Validate local dbt semantic models against Lightdash project specs
-lightdash compile
+# Export saved Lightdash charts to local code repository
+lightdash download
 
-# Query semantic metrics directly from BigQuery via MetricFlow CLI
-mf query --metrics net_revenue_retention,gross_revenue_retention --group-by fct_mrr_cohort_metrics__date_month
+# Compile project lightdash metadata locally
+lightdash compile

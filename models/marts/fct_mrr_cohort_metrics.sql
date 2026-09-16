@@ -6,7 +6,7 @@ with monthly_mrr as (
         sum(case when movement_type = 'contraction' then abs(mrr_change) else 0 end) as contraction_mrr,
         sum(case when movement_type = 'churn' then abs(mrr_change) else 0 end) as churn_mrr,
         sum(mrr_amount) as total_ending_mrr
-    from {{ ref('fct_mrr_movements') }}
+    from {{ ref('fct_mrr_waterfall') }}
     group by 1
 ),
 

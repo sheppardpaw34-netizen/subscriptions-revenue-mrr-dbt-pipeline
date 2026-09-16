@@ -1,5 +1,5 @@
 ### Models Included
-* **`fct_mrr_movements.sql`**: Primary fact mart capturing month-over-month account state transitions, MRR delta changes, and categorical classifications.
+* **`fct_mrr_warterfall.sql`**: Primary fact mart capturing month-over-month account state transitions, MRR delta changes, and categorical classifications.
 * **`metricflow_time_spine.sql`**: Daily time spine model generating standard date granularity required for MetricFlow semantic aggregations.
 
 ---
