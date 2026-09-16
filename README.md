@@ -23,3 +23,26 @@ lightdash download
 
 # Compile project lightdash metadata locally
 lightdash compile
+
+## 🏗️ Data Architecture & Star Schema Lineage Graph
+
+The pipeline relies on a 3-tier dimensional modeling framework:
+* **Staging Layer (`stg_`)**: Standardizes raw Stripe entities (`subscriptions`, `customers`, `invoices`).
+* **Intermediate Layer (`int_`)**: Expands subscription periods into monthly grains and executes LAG windowing for historical baseline tracking.
+* **Marts Layer (`fct_`)**: Dimensional star schema facts driving downstream SaaS BI metrics, cohort retention, and MRR reconciliation.
+
+### Complete dbt Lineage Graph (DAG)
+![dbt Lineage DAG](assets/dbt_lineage_dag.png)
+
+---
+
+## 🧪 Financial Data Testing & Reciprocity Auditing
+
+To maintain production-grade data integrity, the pipeline implements automated singular financial reconciliation assertions:
+
+* **Audit Test**: `tests/assert_mrr_balance_matches.sql`
+* **Assertion Logic**: Verifies that `Current MRR - Previous MRR = MRR Change` across all account snapshot months. Returns variance alerts if delta exceeds $0.01 floating-point tolerance.
+
+```bash
+# Execute financial audit assertion
+dbt test --select assert_mrr_balance_matches

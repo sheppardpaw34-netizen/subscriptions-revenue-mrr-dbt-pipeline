@@ -6,7 +6,7 @@ mrr_with_lag as (
     select
         subscription_id,
         customer_id,
-        plan_id,
+        plan_name,
         date_month,
         mrr_amount,
         lag(mrr_amount, 1, 0.0) over (
@@ -20,7 +20,7 @@ mrr_movements as (
     select
         subscription_id,
         customer_id,
-        plan_id,
+        plan_name,
         date_month,
         mrr_amount,
         previous_mrr_amount,
