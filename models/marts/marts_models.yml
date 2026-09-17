@@ -23,7 +23,7 @@ models:
         data_tests:
           - not_null
 
-      - name: mrr_delta
+      - name: mrr_change
         description: "Net change in monthly recurring revenue."
         meta:
           metrics:

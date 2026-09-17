@@ -1,0 +1,8 @@
+dbt-core>=1.8.0
+dbt-duckdb>=1.8.0
+dbt-metricflow>=1.8.0
+lightdashcli>=0.1000.0
+duckdb>=1.0.0
+pandas>=2.0.0
+sqlfluff>=3.0.0
+sqlfluff-templater-dbt>=3.0.0

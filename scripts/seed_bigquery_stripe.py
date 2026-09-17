@@ -19,9 +19,9 @@ client.create_dataset(dataset, exists_ok=True)
 
 # 2. Synthetic Data Generators
 PLANS = [
-    {"id": "plan_starter", "amount": 2900},    # $29/mo
-    {"id": "plan_pro", "amount": 9900},        # $99/mo
-    {"id": "plan_enterprise", "amount": 29900} # $299/mo
+    {"id": "plan_starter", "amount": 2900},     # $29/mo
+    {"id": "plan_pro", "amount": 9900},         # $99/mo
+    {"id": "plan_enterprise", "amount": 29900}  # $299/mo
 ]
 
 TIMEZONES = ["UTC", "America/New_York", "Europe/London", "Asia/Tokyo"]
@@ -47,10 +47,11 @@ def generate_stripe_data(num_customers=1000):
             "timezone": random.choice(TIMEZONES)
         })
         
-        # Subscription entity
-        plan = random.choice(PLANS)
+        # Initial Subscription state
         sub_id = f"sub_{i:012x}"
-        quantity = random.randint(1, 5)
+        current_plan_idx = random.randint(0, len(PLANS) - 1)
+        current_plan = PLANS[current_plan_idx]
+        current_quantity = random.randint(1, 3)
         
         # 30% churn rate simulation
         is_canceled = random.random() < 0.30
@@ -65,28 +66,45 @@ def generate_stripe_data(num_customers=1000):
         subscriptions.append({
             "id": sub_id,
             "customer_id": cust_id,
-            "plan_id": plan["id"],
+            "plan_id": current_plan["id"],
             "status": status,
-            "quantity": quantity,
-            "unit_amount": plan["amount"],
+            "quantity": current_quantity,
+            "unit_amount": current_plan["amount"],
             "created": created_at.strftime("%Y-%m-%d %H:%M:%S UTC"),
             "canceled_at": canceled_at
         })
         
-        # Invoice entities (Recurring Monthly Billing)
+        # Invoice entities (Recurring Monthly Billing with Expansion/Contraction)
         sub_end_dt = datetime.strptime(canceled_at, "%Y-%m-%d %H:%M:%S UTC") if canceled_at else created_at + timedelta(days=365)
         current_inv_dt = created_at
         inv_count = 1
         
         while current_inv_dt <= sub_end_dt and current_inv_dt <= now_utc:
+            # Simulate Expansion / Contraction (15% chance per recurring month after month 1)
+            if inv_count > 1 and random.random() < 0.15:
+                if random.random() < 0.65:
+                    # Expansion: Upgrade plan tier or add seats
+                    if current_plan_idx < len(PLANS) - 1 and random.random() < 0.5:
+                        current_plan_idx += 1
+                        current_plan = PLANS[current_plan_idx]
+                    else:
+                        current_quantity += random.randint(1, 2)
+                else:
+                    # Contraction: Downgrade plan tier or decrease seats
+                    if current_plan_idx > 0 and random.random() < 0.5:
+                        current_plan_idx -= 1
+                        current_plan = PLANS[current_plan_idx]
+                    else:
+                        current_quantity = max(1, current_quantity - 1)
+
             inv_id = f"in_{i:06x}_{inv_count:04x}"
             inv_status = "paid"
             
-            # 5% failed payment rate (Dunning / Uncollected Debt)
+            # 5% failed payment rate
             if random.random() < 0.05:
                 inv_status = "open" if random.random() < 0.5 else "uncollectible"
                 
-            amount_due = plan["amount"] * quantity
+            amount_due = current_plan["amount"] * current_quantity
             amount_paid = amount_due if inv_status == "paid" else 0
             paid_at = (current_inv_dt + timedelta(hours=2)).strftime("%Y-%m-%d %H:%M:%S UTC") if inv_status == "paid" else None
             
@@ -126,7 +144,7 @@ def load_table(table_name, data):
     print(f"Loaded {len(data)} rows into {table_ref}")
 
 if __name__ == "__main__":
-    print("Generating synthetic Stripe B2B data (Customers, Subscriptions, Invoices)...")
+    print("Generating synthetic Stripe B2B data with Expansion and Contraction movements...")
     customers, subscriptions, invoices = generate_stripe_data(1000)
     
     load_table("customers", customers)

@@ -58,7 +58,7 @@ models:
                 field: customer_id
                 to: ref('stg_stripe_customers')
       - name: subscription_id
-      - name: invoice_staus
+      - name: invoice_status
       - name: amount_due_usd
       - name: amount_paid_usd
       - name: created_at_utc

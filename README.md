@@ -7,6 +7,12 @@ This repository enforces **BI-as-Code** by defining business metrics centrally i
 * **Expansion & Contraction MRR**: Net expansion or downgrade deltas across active accounts.
 * **Net Revenue Retention (NRR)**: Benchmark tracking revenue expansion against churned/contracted revenue.
 
+### 📂 Project Directory Structure
+
+* **`models/`**: Production dimensional model transformations (Staging, Intermediate, Marts).
+* **`analyses/`**: Compiled ad-hoc executive SQL queries for one-off KPI auditing (e.g., MRR churn summaries) without creating database tables.
+* **`tests/`**: Singular automated financial reconciliation assertions.
+
 ## 📊 Business Intelligence & Semantic Layer (Lightdash)
 
 This repository follows **BI-as-Code** principles. Metrics and semantic definitions configured in dbt are automatically synced and version-controlled with Lightdash.
@@ -32,10 +38,12 @@ The pipeline relies on a 3-tier dimensional modeling framework:
 * **Marts Layer (`fct_`)**: Dimensional star schema facts driving downstream SaaS BI metrics, cohort retention, and MRR reconciliation.
 
 ### Complete dbt Lineage Graph (DAG)
-![dbt Lineage DAG](assets/dbt_lineage_dag.png)
+
+
+![dbt Lineage DAG](./assets/lineage_dag.png)
+
 
 ---
-
 ## 🧪 Financial Data Testing & Reciprocity Auditing
 
 To maintain production-grade data integrity, the pipeline implements automated singular financial reconciliation assertions:
@@ -46,3 +54,11 @@ To maintain production-grade data integrity, the pipeline implements automated s
 ```bash
 # Execute financial audit assertion
 dbt test --select assert_mrr_balance_matches
+
+---
+
+## 📊 Analytics & Financial Reconciliation Methodology
+
+* **MRR Waterfall Logic**: Tracks subscriber movements across monthly snapshots to quantify Gross New, Expansion, Contraction, and Churned MRR.
+* **Cohort Retention**: Groups accounts by start-month cohort to evaluate long-term Net Revenue Retention (NRR) and Churn rates.
+* **Automated Audit Assertion**: Enforces $0.01 mathematical reciprocity between historical base MRR and net periodic adjustments via `assert_mrr_balance_matches.sql`.
