@@ -15,11 +15,22 @@ models:
   - name: fct_mrr_waterfall
     description: "Fact table recording monthly MRR transitions across subscription accounts."
     columns:
-      - name: mrr_month
+      - name: customer_id
         data_tests:
           - not_null
 
-      - name: category
+      - name: date_month
+        data_tests:
+          - not_null
+
+      - name: mrr_amount
+        description: "Current period MRR."
+
+      - name: previous_mrr_amount
+        description: "Prior period MRR."
+
+      - name: movement_type
+        description: "MRR classification (new, expansion, contraction, churn, retain)."
         data_tests:
           - not_null
 
@@ -34,19 +45,19 @@ models:
               type: sum
               label: "Gross New MRR"
               filters:
-                - category: "new"
+                - movement_type: "new"
             expansion_mrr:
               type: sum
               label: "Expansion MRR"
               filters:
-                - category: "expansion"
+                - movement_type: "expansion"
             contraction_mrr:
               type: sum
               label: "Contraction MRR"
               filters:
-                - category: "contraction"
+                - movement_type: "contraction"
             churned_mrr:
               type: sum
               label: "Churned MRR"
               filters:
-                - category: "churn"
+                - movement_type: "churn"
