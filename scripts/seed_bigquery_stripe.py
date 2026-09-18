@@ -1,6 +1,8 @@
 import io
 import json
 import random
+import duckdb
+import pandas as pd
 from datetime import datetime, timedelta, timezone
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -143,11 +145,42 @@ def load_table(table_name, data):
     job.result()
     print(f"Loaded {len(data)} rows into {table_ref}")
 
+def load_to_motherduck(customers, subscriptions, invoices):
+  print("Loading datasets into MotherDuck...")
+  conn = duckdb.connect("md:")
+  conn.execute("CREATE SCHEMA IF NOT EXISTS raw_stripe;")
+
+  # Register dataframes so DuckDB can query them
+  conn.register("df_customers", pd.DataFrame(customers))
+  conn.register("df_subscriptions", pd.DataFrame(subscriptions))
+  conn.register("df_invoices", pd.DataFrame(invoices))
+
+  conn.execute(
+      "CREATE OR REPLACE TABLE raw_stripe.customers AS SELECT * FROM"
+      " df_customers"
+  )
+  conn.execute(
+      "CREATE OR REPLACE TABLE raw_stripe.subscriptions AS SELECT * FROM"
+      " df_subscriptions"
+  )
+  conn.execute(
+      "CREATE OR REPLACE TABLE raw_stripe.invoices AS SELECT * FROM df_invoices"
+  )
+  print("All datasets successfully loaded into MotherDuck!")
+
 if __name__ == "__main__":
-    print("Generating synthetic Stripe B2B data with Expansion and Contraction movements...")
-    customers, subscriptions, invoices = generate_stripe_data(1000)
+  print(
+      "Generating synthetic Stripe B2B data with Expansion and Contraction"
+      " movements..."
+  )
+  customers, subscriptions, invoices = generate_stripe_data(1000)
+
+  # 1. Load into BigQuery (Existing)
+  load_table("customers", customers)
+  load_table("subscriptions", subscriptions)
+  load_table("invoices", invoices)
+  print("All datasets successfully loaded into BigQuery!")
+
+  # 2. Load into MotherDuck (New)
+  load_to_motherduck(customers, subscriptions, invoices)
     
-    load_table("customers", customers)
-    load_table("subscriptions", subscriptions)
-    load_table("invoices", invoices)
-    print("All datasets successfully loaded into BigQuery!")

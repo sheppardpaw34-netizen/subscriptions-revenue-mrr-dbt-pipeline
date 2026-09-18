@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: stripe
-    database: saas-analytical-pipeline
+    # database: saas-analytical-pipeline
     schema: raw_stripe
     config:
       loaded_at_field: _loaded_at

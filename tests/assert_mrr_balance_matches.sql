@@ -17,7 +17,6 @@ reconciliation as (
 
     select
         date_month,
-        subscription_id,
         customer_id,
         movement_type,
         previous_mrr_amount,

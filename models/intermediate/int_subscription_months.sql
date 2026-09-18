@@ -8,8 +8,21 @@ subscription_months as (
         sp.customer_id,
         sp.plan_id,
         sp.subscription_status,
-        date_month
+        cast(
+            {% if target.type == 'duckdb' %}
+                dm.date_month
+            {% else %}
+                date_month
+            {% endif %}
+        as date) as date_month
     from subscription_periods as sp
+    {% if target.type == 'duckdb' %}
+    cross join generate_series(
+        date_trunc('month', cast(sp.start_date as date)),
+        date_trunc('month', cast(sp.end_date as date) + interval '1 month'),
+        interval '1 month'
+    ) as dm(date_month)
+    {% else %}
     cross join unnest(
         generate_date_array(
             date_trunc(sp.start_date, month),
@@ -17,12 +30,19 @@ subscription_months as (
             interval 1 month
         )
     ) as date_month
+    {% endif %}
 ),
 
 monthly_invoices as (
     select
         subscription_id,
-        date_trunc(date(created_at_utc), month) as date_month,
+        date_trunc(
+            {% if target.type == 'duckdb' %}
+                'month', cast(created_at_utc as date)
+            {% else %}
+                date(created_at_utc), month
+            {% endif %}
+        ) as date_month,
         sum(amount_due_usd / 100.0) as invoice_mrr
     from {{ ref('stg_stripe_invoices') }}
     where invoice_status = 'paid'

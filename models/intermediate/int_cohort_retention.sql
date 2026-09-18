@@ -16,10 +16,14 @@ activity_months as (
         m.customer_id,
         c.cohort_month,
         m.date_month as activity_month,
-        date_diff(m.date_month, c.cohort_month, month) as month_number,
+        {% if target.type == 'duckdb' %}
+            date_diff('month', cast(c.cohort_month as date), cast(m.date_month as date))
+        {% else %}
+            date_diff(m.date_month, c.cohort_month, month)
+        {% endif %} as month_number,
         m.mrr_amount
-    from mrr_movements m
-    inner join customer_cohorts c
+    from mrr_movements as m
+    inner join customer_cohorts as c
         on m.customer_id = c.customer_id
     where m.mrr_amount > 0
 )

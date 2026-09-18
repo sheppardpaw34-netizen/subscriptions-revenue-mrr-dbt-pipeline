@@ -15,16 +15,32 @@ retention_rates as (
         date_month,
         total_ending_mrr,
         lag(total_ending_mrr) over (order by date_month) as starting_mrr,
+        
         -- NRR = (Starting MRR + Expansion - Contraction - Churn) / Starting MRR
-        safe_divide(
-            (lag(total_ending_mrr) over (order by date_month) + expansion_mrr - contraction_mrr - churn_mrr),
-            lag(total_ending_mrr) over (order by date_month)
-        ) * 100 as nrr_percentage,
-        -- GRR = (Starting MRR - Contraction - Churn) / Starting MRR (capped at 100%)
-        safe_divide(
-            (lag(total_ending_mrr) over (order by date_month) - contraction_mrr - churn_mrr),
-            lag(total_ending_mrr) over (order by date_month)
-        ) * 100 as grr_percentage
+        {% if target.type == 'duckdb' %}
+            case 
+                when lag(total_ending_mrr) over (order by date_month) = 0 then null 
+                else ((lag(total_ending_mrr) over (order by date_month) + expansion_mrr - contraction_mrr - churn_mrr) / lag(total_ending_mrr) over (order by date_month)) * 100 
+            end
+        {% else %}
+            safe_divide(
+                (lag(total_ending_mrr) over (order by date_month) + expansion_mrr - contraction_mrr - churn_mrr),
+                lag(total_ending_mrr) over (order by date_month)
+            ) * 100
+        {% endif %} as nrr_percentage,
+
+        -- GRR = (Starting MRR - Contraction - Churn) / Starting MRR
+        {% if target.type == 'duckdb' %}
+            case 
+                when lag(total_ending_mrr) over (order by date_month) = 0 then null 
+                else ((lag(total_ending_mrr) over (order by date_month) - contraction_mrr - churn_mrr) / lag(total_ending_mrr) over (order by date_month)) * 100 
+            end
+        {% else %}
+            safe_divide(
+                (lag(total_ending_mrr) over (order by date_month) - contraction_mrr - churn_mrr),
+                lag(total_ending_mrr) over (order by date_month)
+            ) * 100
+        {% endif %} as grr_percentage
     from monthly_mrr
 )
 

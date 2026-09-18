@@ -1,15 +1,9 @@
-{{ config(materialized='table') }}
-
-with days as (
-    select date_day
-    from unnest(
-        generate_date_array(
-            cast('2020-01-01' as date),
-            cast('2030-12-31' as date),
-            interval 1 day
-        )
-    ) as date_day
+with date_spine as (
+    {{ dbt_utils.date_spine(
+        datepart="day",
+        start_date="cast('2020-01-01' as date)",
+        end_date="cast('2030-01-01' as date)"
+    ) }}
 )
-
 select cast(date_day as date) as date_day
-from days
+from date_spine
