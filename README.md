@@ -1,64 +1,60 @@
-## 📊 Business Intelligence & Semantic Layer (MetricFlow + Lightdash)
+# B2B SaaS Revenue & Subscription Analytics Engine
 
-This repository enforces **BI-as-Code** by defining business metrics centrally in dbt MetricFlow (`mertic.yml`) and exposing them to Lightdash for headless querying.
+A multi-warehouse Analytics Engineering pipeline built with **dbt Core**, **DuckDB / MotherDuck**, **Google BigQuery**, **MetricFlow**, and **Lightdash**[cite: 19, 23]. 
 
-### 1. Key Business Metrics Exposed
-* **Gross New MRR**: Sum of new subscription monthly recurring revenue.
-* **Expansion & Contraction MRR**: Net expansion or downgrade deltas across active accounts.
-* **Net Revenue Retention (NRR)**: Benchmark tracking revenue expansion against churned/contracted revenue.
-
-### 📂 Project Directory Structure
-
-* **`models/`**: Production dimensional model transformations (Staging, Intermediate, Marts).
-* **`analyses/`**: Compiled ad-hoc executive SQL queries for one-off KPI auditing (e.g., MRR churn summaries) without creating database tables.
-* **`tests/`**: Singular automated financial reconciliation assertions.
-
-## 📊 Business Intelligence & Semantic Layer (Lightdash)
-
-This repository follows **BI-as-Code** principles. Metrics and semantic definitions configured in dbt are automatically synced and version-controlled with Lightdash.
-
-### MRR Movement Waterfall Chart
-Below is the compiled Lightdash visualization generated from `fct_mrr_waterfall`:
-
-![MRR Movement Waterfall](assets/lightdash_chart.png)
-
-### Sync & Deploy Commands
-```bash
-# Export saved Lightdash charts to local code repository
-lightdash download
-
-# Compile project lightdash metadata locally
-lightdash compile
-
-## 🏗️ Data Architecture & Star Schema Lineage Graph
-
-The pipeline relies on a 3-tier dimensional modeling framework:
-* **Staging Layer (`stg_`)**: Standardizes raw Stripe entities (`subscriptions`, `customers`, `invoices`).
-* **Intermediate Layer (`int_`)**: Expands subscription periods into monthly grains and executes LAG windowing for historical baseline tracking.
-* **Marts Layer (`fct_`)**: Dimensional star schema facts driving downstream SaaS BI metrics, cohort retention, and MRR reconciliation.
-
-### Complete dbt Lineage Graph (DAG)
-
-
-![dbt Lineage DAG](./assets/lineage_dag.png)
-
-
----
-## 🧪 Financial Data Testing & Reciprocity Auditing
-
-To maintain production-grade data integrity, the pipeline implements automated singular financial reconciliation assertions:
-
-* **Audit Test**: `tests/assert_mrr_balance_matches.sql`
-* **Assertion Logic**: Verifies that `Current MRR - Previous MRR = MRR Change` across all account snapshot months. Returns variance alerts if delta exceeds $0.01 floating-point tolerance.
-
-```bash
-# Execute financial audit assertion
-dbt test --select assert_mrr_balance_matches
+This repository processes raw Stripe subscription event streams into automated B2B SaaS revenue models, calculating Monthly Recurring Revenue (MRR) movement waterfalls, customer retention cohorts, and revenue dynamics[cite: 21, 23].
 
 ---
 
-## 📊 Analytics & Financial Reconciliation Methodology
+## Architecture & Data Lineage
 
-* **MRR Waterfall Logic**: Tracks subscriber movements across monthly snapshots to quantify Gross New, Expansion, Contraction, and Churned MRR.
-* **Cohort Retention**: Groups accounts by start-month cohort to evaluate long-term Net Revenue Retention (NRR) and Churn rates.
-* **Automated Audit Assertion**: Enforces $0.01 mathematical reciprocity between historical base MRR and net periodic adjustments via `assert_mrr_balance_matches.sql`.
+The pipeline employs a three-tier modular architecture (`staging` ➔ `intermediate` ➔ `marts`)[cite: 23]:
+
+1. **Staging (`staging`)**: Cleans, renames, and types raw Stripe event records (`customers`, `subscriptions`, `invoices`)[cite: 23].
+2. **Intermediate (`intermediate`)**: Constructs customer-month spine models, resolves subscription date overlaps, and derives lagged prior-month MRR[cite: 23].
+3. **Marts (`marts`)**: Exposes presentation-ready analytical tables and semantic models[cite: 23]:
+   * `fct_mrr_waterfall`: Categorizes month-over-month MRR movement into `new`, `expansion`, `contraction`, `churn`, and `retained`[cite: 21, 23].
+   * `fct_mrr_cohort_metrics`: Computes cohort retention schedules and revenue retention trajectories[cite: 23].
+   * `mrr_waterfall_semantic`: Integrates MetricFlow semantic metrics with Lightdash BI[cite: 19, 23].
+
+### Complete DAG Lineage Graph
+
+![dbt DAG Lineage](assets/dbt-dag.png)
+
+---
+
+## Key Business Metrics & Visualizations
+
+The primary fact model computes MRR balance movements across reporting periods[cite: 21, 23]. Metric parity is verified between local development (`MotherDuck`) and production (`Google BigQuery`)[cite: 23].
+
+### Revenue Movement Accounting Equation
+$$\text{MRR}_{\text{Ending}} = \text{MRR}_{\text{Beginning}} + \text{New} + \text{Expansion} - \text{Contraction} - \text{Churn}$$
+
+* **New**: First subscription month for an onboarding account[cite: 21].
+* **Expansion**: $\text{MRR}_{\text{Current}} > \text{MRR}_{\text{Prior}} > 0$[cite: 21].
+* **Contraction**: $0 < \text{MRR}_{\text{Current}} < \text{MRR}_{\text{Prior}}$[cite: 21].
+* **Churn**: $\text{MRR}_{\text{Current}} = 0$ while $\text{MRR}_{\text{Prior}} > 0$[cite: 21].
+* **Retained**: $\text{MRR}_{\text{Current}} = \text{MRR}_{\text{Prior}} > 0$[cite: 21].
+
+### Lightdash Executive Visualization
+
+![Lightdash MRR Movement Chart](assets/lightdash_chart.png)
+
+---
+
+## Data Quality & Automated Assertions
+
+Pipeline integrity is protected via custom dbt assertions and automated tests[cite: 23]:
+
+* **MRR Balance Reconciliation**: `assert_mrr_balance_matches.sql` validates that month-over-month aggregated deltas match calculated movement categories[cite: 23].
+* **Primary Key Uniqueness**: Enforced via `not_null` and `unique` assertions on key dimensions[cite: 23].
+
+---
+
+## Quickstart & Execution
+
+### 1. Environment Setup
+```bash
+python -m venv dbt-env
+source dbt-env/Scripts/activate  # On Windows Git Bash
+pip install dbt-duckdb dbt-bigquery
