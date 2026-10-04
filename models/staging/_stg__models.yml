@@ -1,0 +1,88 @@
+version: 2
+
+models:
+  - name: stg_stripe__customers
+    description: "Staged Stripe customer accounts with cleaned string attributes and formatted timestamps."
+    columns:
+      - name: customer_id
+        description: "Primary key for customer entity."
+        tests:
+          - unique
+          - not_null
+
+      - name: customer_email
+        description: "Lowercased and trimmed customer email address."
+        tests:
+          - not_null
+
+      - name: billing_currency
+        description: "Standardized 3-letter ISO currency code."
+
+      - name: created_at_utc
+        description: "Customer account creation timestamp converted from Unix epoch to UTC."
+        tests:
+          - not_null
+
+  - name: stg_stripe__invoices
+    description: "Staged Stripe invoice ledger with converted currency amounts and epoch timestamps."
+    columns:
+      - name: invoice_id
+        description: "Primary key for invoice record."
+        tests:
+          - unique
+          - not_null
+
+      - name: subscription_id
+        description: "Foreign key referencing the associated subscription."
+
+      - name: customer_id
+        description: "Foreign key referencing the billed customer."
+        tests:
+          - not_null
+
+      - name: invoice_status
+        description: "Current lifecycle status of invoice (e.g., paid, open, draft)."
+        tests:
+          - not_null
+
+      - name: amount_due_local
+        description: "Total invoice amount due converted from cents to base decimal currency."
+
+      - name: created_at_utc
+        description: "Invoice issue timestamp converted from Unix epoch to UTC."
+        tests:
+          - not_null
+
+  - name: stg_stripe__subscription_events
+    description: "Staged granular subscription lifecycle audit events for MRR attribution."
+    columns:
+      - name: event_id
+        description: "Primary key for subscription event record."
+        tests:
+          - unique
+          - not_null
+
+      - name: subscription_id
+        description: "Foreign key referencing the associated subscription."
+        tests:
+          - not_null
+
+      - name: customer_id
+        description: "Foreign key referencing the target customer."
+        tests:
+          - not_null
+
+      - name: event_type
+        description: "Type of subscription state change event (e.g., new, upgrade, downgrade, cancel)."
+        tests:
+          - not_null
+
+      - name: event_timestamp_utc
+        description: "Exact event occurrence timestamp in UTC."
+        tests:
+          - not_null
+
+      - name: event_timestamp_date
+        description: "Calendar date of event occurrence for daily cohort aggregations."
+        tests:
+          - not_null
