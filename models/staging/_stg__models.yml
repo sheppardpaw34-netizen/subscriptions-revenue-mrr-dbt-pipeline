@@ -86,3 +86,12 @@ models:
         description: "Calendar date of event occurrence for daily cohort aggregations."
         tests:
           - not_null
+
+  - name: stg_utilities__date_spine
+    description: "Monthly calendar date spine generated via dbt_utils for subscription timeline fanouts."
+    columns:
+      - name: date_month
+        description: "First day of each calendar month."
+        data_tests:
+          - unique
+          - not_null
