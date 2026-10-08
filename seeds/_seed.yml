@@ -1,0 +1,15 @@
+version: 2
+
+seeds:
+  - name: fx_rates
+    description: "Monthly exchange rates to convert local subscription currencies to USD baseline."
+    columns:
+      - name: currency_code
+        data_tests:
+          - not_null
+      - name: fx_date
+        data_tests:
+          - not_null
+      - name: fx_to_usd
+        data_tests:
+          - not_null

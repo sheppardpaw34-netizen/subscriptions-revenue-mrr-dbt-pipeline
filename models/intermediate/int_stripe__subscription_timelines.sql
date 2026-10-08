@@ -11,6 +11,7 @@ subscription_window as (
         plan_interval,
         plan_amount_local,
         currency_code,
+        event_type,
         subscription_status,
         event_timestamp_utc as valid_from,
         lead(event_timestamp_utc) over (
@@ -29,6 +30,7 @@ select
     plan_interval,
     plan_amount_local,
     currency_code,
+    event_type,
     subscription_status,
     valid_from,
     valid_to,

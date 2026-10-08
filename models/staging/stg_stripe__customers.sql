@@ -1,5 +1,5 @@
 with source as (
-    select * from {{ source('stripe','customers') }}
+    select * from {{ source('stripe', 'customers') }}
 ),
 
 renamed as (
@@ -8,7 +8,7 @@ renamed as (
         lower(trim(cast(email as string))) as customer_email,
         upper(trim(cast(currency as string))) as billing_currency,
         cast(timezone as string) as customer_timezone,
-        {{ dbt_date.from_unixtimestamp("created_at_utc") }} as created_at_utc
+        {{ safe_cast_timestamp("created_at_utc") }} as created_at_utc
     from source
 )
 
