@@ -13,9 +13,9 @@ renamed as (
         cast(amount_due_cents as numeric) / 100.0 as amount_due_local,
         cast(amount_paid_cents as numeric) / 100.0 as amount_paid_local,
         upper(trim(cast(currency as string))) as currency_code,
-        {{ dbt_date.from_unixtimestamp("created_at") }} as created_at_utc,
-        {{ dbt_date.from_unixtimestamp("due_date") }} as due_date_utc,
-        {{ dbt_date.from_unixtimestamp("paid_at_utc") }} as paid_at_utc
+        {{ safe_cast_timestamp("created_at") }} as created_at_utc,
+        {{ safe_cast_timestamp("due_date") }} as due_date_utc,
+        {{ safe_cast_timestamp("paid_at_utc") }} as paid_at_utc
     from source
 )
 

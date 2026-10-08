@@ -13,8 +13,8 @@ renamed as (
         cast(plan_amount_cents as numeric) / 100.0 as plan_amount_local,
         upper(trim(cast(currency as string))) as currency_code,
         cast(status as string) as subscription_status,
-        {{ dbt_date.from_unixtimestamp("event_timestamp") }} as event_timestamp_utc,
-        cast({{ dbt_date.from_unixtimestamp("event_timestamp") }} as date) as event_timestamp_date
+        {{ safe_cast_timestamp("event_timestamp") }} as event_timestamp_utc,
+        cast({{ safe_cast_timestamp("event_timestamp") }} as date) as event_timestamp_date
     from source
 )
 
