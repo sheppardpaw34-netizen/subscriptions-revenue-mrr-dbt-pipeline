@@ -1,9 +1,9 @@
 with source as (
-    select * from {{ref('stg_stripe__subscription_events')}}
+    select * from {{ ref('stg_stripe__subscription_events') }}
 ),
 
 deduplicated as (
-    select 
+    select
         event_id,
         customer_id,
         subscription_id,
@@ -14,7 +14,7 @@ deduplicated as (
         currency_code,
         subscription_status,
         event_timestamp_utc,
-        event_timestamp_date,
+        event_date,
         row_number() over (
             partition by subscription_id, event_timestamp_utc
             order by event_id desc
@@ -22,7 +22,7 @@ deduplicated as (
     from source
 )
 
-select 
+select
     event_id,
     customer_id,
     subscription_id,
@@ -33,6 +33,6 @@ select
     currency_code,
     subscription_status,
     event_timestamp_utc,
-    event_timestamp_date
+    event_date
 from deduplicated
-where row_num = 1 
+where row_num = 1

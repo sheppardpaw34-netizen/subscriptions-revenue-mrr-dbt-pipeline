@@ -1,10 +1,13 @@
-with date_spine as (
+with date_series as (
     {{ dbt_utils.date_spine(
-        datepart='month',
+        datepart="day",
         start_date="cast('2020-01-01' as date)",
-        end_date="cast(date_trunc('month', date_add(current_date(), interval 1 month)) as date)"
+        end_date="cast('2026-12-31' as date)"
     ) }}
 )
 
-select cast(date_month as date) as date_month
-from date_spine
+select
+    cast(date_day as date) as date_day,
+    cast({{ dbt.date_trunc('month', 'date_day') }} as date) as date_month,
+    cast({{ dbt.date_trunc('year', 'date_day') }} as date) as date_year
+from date_series

@@ -6,13 +6,13 @@ models:
     columns:
       - name: customer_id
         description: "Primary key for customer entity."
-        tests:
+        data_tests:
           - unique
           - not_null
 
       - name: customer_email
         description: "Lowercased and trimmed customer email address."
-        tests:
+        data_tests:
           - not_null
 
       - name: billing_currency
@@ -20,7 +20,7 @@ models:
 
       - name: created_at_utc
         description: "Customer account creation timestamp converted from Unix epoch to UTC."
-        tests:
+        data_tests:
           - not_null
 
   - name: stg_stripe__invoices
@@ -28,7 +28,7 @@ models:
     columns:
       - name: invoice_id
         description: "Primary key for invoice record."
-        tests:
+        data_tests:
           - unique
           - not_null
 
@@ -37,12 +37,12 @@ models:
 
       - name: customer_id
         description: "Foreign key referencing the billed customer."
-        tests:
+        data_tests:
           - not_null
 
       - name: invoice_status
         description: "Current lifecycle status of invoice (e.g., paid, open, draft)."
-        tests:
+        data_tests:
           - not_null
 
       - name: amount_due_local
@@ -50,7 +50,7 @@ models:
 
       - name: created_at_utc
         description: "Invoice issue timestamp converted from Unix epoch to UTC."
-        tests:
+        data_tests:
           - not_null
 
   - name: stg_stripe__subscription_events
@@ -58,33 +58,33 @@ models:
     columns:
       - name: event_id
         description: "Primary key for subscription event record."
-        tests:
+        data_tests:
           - unique
           - not_null
 
       - name: subscription_id
         description: "Foreign key referencing the associated subscription."
-        tests:
+        data_tests:
           - not_null
 
       - name: customer_id
         description: "Foreign key referencing the target customer."
-        tests:
+        data_tests:
           - not_null
 
       - name: event_type
         description: "Type of subscription state change event (e.g., new, upgrade, downgrade, cancel)."
-        tests:
+        data_tests:
           - not_null
 
       - name: event_timestamp_utc
         description: "Exact event occurrence timestamp in UTC."
-        tests:
+        data_tests:
           - not_null
 
-      - name: event_timestamp_date
+      - name: event_date
         description: "Calendar date of event occurrence for daily cohort aggregations."
-        tests:
+        data_tests:
           - not_null
 
   - name: stg_utilities__date_spine
@@ -93,5 +93,4 @@ models:
       - name: date_month
         description: "First day of each calendar month."
         data_tests:
-          - unique
           - not_null

@@ -1,0 +1,91 @@
+version: 2
+
+semantic_models:
+  - name: mrr_waterfall_semantic
+    model: ref('marts_mrr_waterfalls')
+    description: "Enterprise SaaS MRR Waterfall semantic model for executive reporting."
+    
+    defaults:
+      agg_time_dimension: date_month
+
+    entities:
+      - name: customer
+        type: primary
+        expr: customer_id
+
+    dimensions:
+      - name: date_month
+        type: time
+        type_params:
+          time_granularity: month
+      - name: mrr_category
+        type: categorical
+
+    measures:
+      - name: measure_total_mrr
+        expr: current_mrr_usd
+        agg: sum
+      - name: measure_new_mrr
+        expr: new_mrr_usd
+        agg: sum
+      - name: measure_expansion_mrr
+        expr: expansion_mrr_usd
+        agg: sum
+      - name: measure_contraction_mrr
+        expr: contraction_mrr_usd
+        agg: sum
+      - name: measure_churn_mrr
+        expr: churn_mrr_usd
+        agg: sum
+      - name: measure_reactivation_mrr
+        expr: reactivation_mrr_usd
+        agg: sum
+
+metrics:
+  - name: new_mrr
+    label: "New MRR"
+    description: "New subscription bookings revenue"
+    type: simple
+    type_params:
+      measure: measure_new_mrr
+
+  - name: expansion_mrr
+    label: "Expansion MRR"
+    description: "Account expansion and upgrade revenue"
+    type: simple
+    type_params:
+      measure: measure_expansion_mrr
+
+  - name: contraction_mrr
+    label: "Contraction MRR"
+    description: "Account downgrade revenue reduction"
+    type: simple
+    type_params:
+      measure: measure_contraction_mrr
+
+  - name: churn_mrr
+    label: "Churn MRR"
+    description: "Account cancellation revenue loss"
+    type: simple
+    type_params:
+      measure: measure_churn_mrr
+
+  - name: reactivation_mrr
+    label: "Reactivation MRR"
+    description: "Reactivated subscription revenue"
+    type: simple
+    type_params:
+      measure: measure_reactivation_mrr
+
+  - name: net_new_mrr
+    label: "Net New MRR"
+    description: "Net MRR Growth = New + Expansion + Reactivation + Contraction + Churn"
+    type: derived
+    type_params:
+      expr: new_mrr + expansion_mrr + reactivation_mrr + contraction_mrr + churn_mrr
+      metrics:
+        - name: new_mrr
+        - name: expansion_mrr
+        - name: reactivation_mrr
+        - name: contraction_mrr
+        - name: churn_mrr
