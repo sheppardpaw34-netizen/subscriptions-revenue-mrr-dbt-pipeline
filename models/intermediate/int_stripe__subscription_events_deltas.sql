@@ -1,9 +1,9 @@
 with deduplicated_events as (
-    select * from {{ ref('int_stripe__subscription_events_deduped')}}
-    ),
+    select * from {{ ref('int_stripe__subscription_events_deduped') }}
+),
 
 lagged_events as (
-    select 
+    select
         event_id,
         customer_id,
         subscription_id,
@@ -14,7 +14,7 @@ lagged_events as (
         currency_code,
         subscription_status,
         event_timestamp_utc,
-        event_timestamp_date,
+        event_date,
         lag(subscription_status) over (
             partition by subscription_id
             order by event_timestamp_utc asc, event_id asc
@@ -27,7 +27,7 @@ lagged_events as (
 ),
 
 filtered_deltas as (
-    select 
+    select
         event_id,
         customer_id,
         subscription_id,
@@ -38,11 +38,12 @@ filtered_deltas as (
         currency_code,
         subscription_status,
         event_timestamp_utc,
-        event_timestamp_date
+        event_date
     from lagged_events
-    where prev_subscription_status is null
-    or subscription_status != prev_subscription_status
-    or plan_amount_local != prev_plan_amount_local
-) 
+    where
+        prev_subscription_status is null
+        or subscription_status != prev_subscription_status
+        or plan_amount_local != prev_plan_amount_local
+)
 
 select * from filtered_deltas

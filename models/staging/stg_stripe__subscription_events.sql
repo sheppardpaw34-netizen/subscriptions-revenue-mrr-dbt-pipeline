@@ -14,7 +14,7 @@ renamed as (
         upper(trim(cast(currency as string))) as currency_code,
         cast(status as string) as subscription_status,
         {{ safe_cast_timestamp("event_timestamp") }} as event_timestamp_utc,
-        cast({{ safe_cast_timestamp("event_timestamp") }} as date) as event_timestamp_date
+        cast({{ safe_cast_timestamp("event_timestamp") }} as date) as event_date
     from source
 )
 
