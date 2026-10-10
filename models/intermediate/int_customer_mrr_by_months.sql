@@ -26,8 +26,9 @@ joined_fx as (
         round(s.mrr_local * coalesce(fx.fx_to_usd, 1.0), 2) as mrr_usd
     from subscription_mrr s
     left join fx_rates fx
-        on s.currency_code = fx.currency_code
-        and s.date_month = fx.fx_date
+        on
+            s.currency_code = fx.currency_code
+            and s.date_month = fx.fx_date
 ),
 
 customer_monthly_mrr as (

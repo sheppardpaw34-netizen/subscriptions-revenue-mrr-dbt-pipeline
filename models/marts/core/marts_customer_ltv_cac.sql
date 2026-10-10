@@ -15,6 +15,7 @@ with customer_timeline as (
 
 select
     customer_id,
+    cutomer_email,
     first_active_month,
     last_active_month,
     total_active_months as tenure_in_months,
