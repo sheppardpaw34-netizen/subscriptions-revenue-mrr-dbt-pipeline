@@ -1,6 +1,7 @@
 with customer_timeline as (
     select
         customer_id,
+        customer_email,
         min(date_month) as first_active_month,
         max(case when mrr_usd > 0 then date_month end) as last_active_month,
         count(distinct case when mrr_usd > 0 then date_month end) as total_active_months,
@@ -10,12 +11,12 @@ with customer_timeline as (
         -- Current active state check
         max(date_month) = max(case when mrr_usd > 0 then date_month end) as is_currently_active
     from {{ ref('int_customer_mrr_by_months') }}
-    group by 1
+    group by 1, 2
 )
 
 select
     customer_id,
-    cutomer_email,
+    customer_email,
     first_active_month,
     last_active_month,
     total_active_months as tenure_in_months,
