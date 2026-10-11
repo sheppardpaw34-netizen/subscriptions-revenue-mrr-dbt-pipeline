@@ -13,7 +13,7 @@ customer_monthly_activity as (
         f.cohort_month,
         mrr.date_month,
 
-        {{ dbt.datediff('f.cohort_month', 'mrr.date_month', 'month') }} as cohort_age_month,
+        {{ dbt.datediff( 'f.cohort_month', 'mrr.date_month', 'month') }} as cohort_age_month,
         mrr.mrr_usd
     from {{ ref('int_customer_mrr_by_months') }} mrr
     inner join first_subscription_month f
@@ -51,9 +51,9 @@ select
     act.cohort_mrr_usd,
 
     -- Executive Financial Ratios
-    round(cast(act.active_logo_count as numeric) / nullif(base.initial_logo_count, 0) * 100, 2) as logo_retention_pct,
-    round(cast(act.cohort_mrr_usd as numeric) / nullif(base.cohort_initial_mrr_usd, 0) * 100, 2) as net_revenue_retention_nrr_pct,
-    round(100.0 - (cast(act.active_logo_count as numeric) / nullif(base.initial_logo_count, 0) * 100), 2) as cumulative_logo_churn_pct
+    round(cast(act.active_logo_count as numeric) / nullif(base.initial_logo_count, 0), 4) as logo_retention_pct,
+    round(cast(act.cohort_mrr_usd as numeric) / nullif(base.cohort_initial_mrr_usd, 0), 4) as net_revenue_retention_nrr_pct,
+    round(100.0 - (cast(act.active_logo_count as numeric) / nullif(base.initial_logo_count, 0)), 4) as cumulative_logo_churn_pct
 from cohort_activity act
 inner join cohort_base base
     on act.cohort_month = base.cohort_month
