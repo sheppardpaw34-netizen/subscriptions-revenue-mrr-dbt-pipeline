@@ -37,14 +37,14 @@ customer_monthly_mrr as (
         j.customer_id,
         c.customer_email,
         c.created_at_utc,
-        date_trunc('month', c.created_at_utc) as cohort_month,
+        date_trunc(cast(c.created_at_utc as date), month) as cohort_month,
         sum(j.mrr_local) as mrr_local,
         sum(j.mrr_usd) as mrr_usd,
         count(distinct j.subscription_id) as active_subscriptions_count
     from joined_fx j
     left join customers c
         on j.customer_id = c.customer_id
-    where j.subscription_status in ('active', 'past_due', 'trialing')
+    where j.subscription_status in ('active', 'past_due', 'trialing', 'canceled')
     group by
         j.date_month,
         j.customer_id,
