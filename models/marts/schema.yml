@@ -97,6 +97,46 @@ models:
       - name: account_status
         description: "Current account status ('ACTIVE' or 'CHURNED')."
 
+  - name: marts_saas_quick_ratio
+    description: "Executive macro-level SaaS health metrics tracking growth efficiency and Quick Ratio."
+    columns:
+      - name: date_month
+        description: "Reporting activity month."
+      - name: total_new_mrr
+        description: "Total new subscription MRR inflow."
+      - name: total_expansion_mrr
+        description: "Total expansion subscription MRR inflow."
+      - name: total_reactivation_mrr
+        description: "Total reactivation MRR inflow."
+      - name: total_contraction_mrr
+        description: "Total contraction MRR outflow."
+      - name: total_churn_mrr
+        description: "Total churn MRR outflow."
+      - name: total_gross_additions_mrr
+        description: "Combined MRR inflows (New + Expansion + Reactivation)."
+        meta:
+          metrics:
+            sum_gross_additions:
+              type: sum
+              label: "Gross Additions (USD)"
+              format: '"$"#,##0.00'
+      - name: total_gross_losses_mrr
+        description: "Combined MRR outflows (Contraction + Churn)."
+        meta:
+          metrics:
+            sum_gross_losses:
+              type: sum
+              label: "Gross Losses (USD)"
+              format: '"$"#,##0.00'
+      - name: saas_quick_ratio
+        description: "Growth efficiency Quick Ratio: Inflows / Outflows. Target > 4.0."
+        meta:
+          metrics:
+            quick_ratio:
+              type: average
+              label: "SaaS Quick Ratio"
+              format: "0.00"
+
 
 # ==============================================================================
 # dbt METRICFLOW SEMANTIC LAYER CONFIGURATION
@@ -218,6 +258,30 @@ semantic_models:
         expr: customer_arpa_usd
         agg: average
 
+  - name: quick_ratio_semantic
+    model: ref('marts_saas_quick_ratio')
+    description: "Executive SaaS Quick Ratio semantic model."
+
+    defaults:
+      agg_time_dimension: date_month
+    
+    entities:
+      - name: time_period
+        type: primary
+        expr: date_month
+
+    dimensions:
+      - name: date_month
+        type: time
+        type_params:
+          time_granularity: month
+
+    measures:
+      - name: measure_quick_ratio
+        description: "Average Quick Ratio."
+        expr: saas_quick_ratio
+        agg: average
+
 
 # Single, unified Metrics registry
 metrics:
@@ -326,3 +390,4 @@ metrics:
         - name: reactivation_mrr
         - name: contraction_mrr
         - name: churn_mrr
+
