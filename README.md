@@ -10,8 +10,8 @@ An end-to-end, production-grade Analytics Engineering pipeline built for B2B Saa
 | :--- | :--- | :--- |
 | **Interactive BI** | [Executive Lightdash Dashboard](https://app.lightdash.cloud/share/v68oBv1MvFEcaajO9WUup) | Interactive Executive Board Command Center ($2\times2$ grid) |
 | **Source Code** | [GitHub Repository](https://github.com/sheppardpaw34-netizen/subscriptions-revenue-mrr-dbt-pipeline) | Full dbt-core transformation pipeline & MetricFlow semantic models |
-| **Cloud Warehouse** | Google BigQuery (`saas-analytics-prod`) | Production cloud data warehouse (Prod Target) |
-| **Edge Warehouse** | MotherDuck Shared DB | `ATTACH 'md:_share/my_db/f265c227-9b04-447d-be9a-3691445657e1';` |
+| **Cloud Warehouse** | [Google Cloud BigQuery Console](https://console.cloud.google.com/bigquery) | Prod Target: Project ID `saas-analytics-prod` (Dataset: `dbt_production`) |
+| **Edge Warehouse** | [MotherDuck Shared DB](https://app.motherduck.com/) | Attachment Query: `ATTACH 'md:_share/my_db/f265c227-9b04-447d-be9a-3691445657e1';` |
 
 ---
 ## 📈 Part 2: Executive Business Intelligence & Key Insights
@@ -157,36 +157,8 @@ Data integrity is continuously validated on every GitHub pull request via automa
 * **Schema Integrity:** Unique and non-null assertions on all primary/surrogate keys (`customer_id`, `subscription_id`, `date_month`).
 * **Financial Logic Assertions:** Custom dbt tests enforcing non-negative MRR values and valid event date sequences.
 
----
+![Data test Asssertion](assets/dbt-test.png)
 
-### 4. Synthetic Data Generation Notice
-> **Note on Underlying Data:** To maintain full compliance with privacy standards while providing realistic subscription volume, all underlying customer profiles, subscription events, and transaction amounts were programmatically synthesized using custom Python pipelines (`scripts/seed_bigquery_stripe.py`). No real-world customer or proprietary business data is contained in this repository.
-
-## 🧪 Part 5: Data Quality, CI/CD & Multi-Warehouse Parity
-
-Maintaining strict financial governance and cross-platform portability requires rigorous automated testing, audit reconciliation models, and synthetic data validation pipelines.
-
----
-
-### 1. Warehouse-Agnostic ANSI SQL Architecture
-All SQL transformations are engineered using strict **ANSI SQL standards** and dbt cross-database Jinja abstractions (`{{ dbt.date_trunc() }}`, `{{ dbt.dateadd() }}`). This guarantees complete model portability across different database engines without needing dialect-specific rewrites:
-* **Development & Local Execution:** DuckDB / MotherDuck (`target: motherduck`)
-* **Production Cloud Execution:** Google BigQuery (`target: prod`)
-* **Cross-Warehouse Financial Reconciliation:** Achieved **100% exact numerical parity** ($55,100.61 ending MRR) down to the cent across both target environments.
-
----
-
-### 2. Audit Reconciliation (`audit_mrr_ground_truth_reconciliation.sql`)
-To guarantee that transformation models mirror raw billing truth, the pipeline includes a dedicated audit model:
-* **Invoice-Level Reconciliation:** Cross-checks active subscription MRR generated in the intermediate layer directly against raw Stripe event logs (`stg_stripe_invoices`).
-* **Zero Variance Threshold:** Verifies that no revenue leakage or duplicate month attribution occurs across customer lifecycles.
-
----
-
-### 3. Automated Data Quality & CI/CD Pipelines
-Data integrity is continuously validated on every GitHub pull request via automated **GitHub Actions** CI/CD workflows:
-* **Schema Integrity:** Unique and non-null assertions on all primary/surrogate keys (`customer_id`, `subscription_id`, `date_month`).
-* **Financial Logic Assertions:** Custom dbt tests enforcing non-negative MRR values and valid event date sequences.
 
 ---
 

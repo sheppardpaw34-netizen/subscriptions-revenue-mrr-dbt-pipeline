@@ -37,7 +37,7 @@ customer_monthly_mrr as (
         j.customer_id,
         c.customer_email,
         c.created_at_utc,
-       {{ dbt.date_trunc("month", "cast(c.created_at_utc as date)") }} as cohort_month,
+        {{ dbt.date_trunc("month", "cast(c.created_at_utc as date)") }} as cohort_month,
         sum(j.mrr_local) as mrr_local,
         sum(j.mrr_usd) as mrr_usd,
         count(distinct j.subscription_id) as active_subscriptions_count
