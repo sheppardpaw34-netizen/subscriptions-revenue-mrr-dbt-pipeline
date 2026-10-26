@@ -1,5 +1,9 @@
 with source as (
     select * from {{ source('stripe', 'subscription_events') }}
+    where
+        event_id is not null
+        and subscription_id is not null
+        and customer_id is not null
 ),
 
 renamed as (

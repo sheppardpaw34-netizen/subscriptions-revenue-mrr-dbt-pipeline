@@ -1,5 +1,8 @@
 with source as (
     select * from {{ source('stripe', 'invoices') }}
+    where
+        invoice_id is not null
+        and customer_id is not null
 ),
 
 renamed as (
